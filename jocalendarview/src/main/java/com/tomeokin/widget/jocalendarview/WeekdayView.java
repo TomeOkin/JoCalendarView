@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class WeekdayView extends ViewGroup {
   private static final int DEFAULT_DAYS_IN_WEEK = 7;
   private int mWeeks = 6;

@@ -104,36 +104,31 @@ public class CalendarManager {
 
     for (int i = 0; i < dateInfos.length; i++) {
       for (int j = 0; j < dateInfos[i].length; j++) {
-        DateInfo tmp = new DateInfo();
-        tmp.day = monthDays[i][j];
+        dateInfos[i][j].day = monthDays[i][j];
         if (mCalendarUtils instanceof DPCNCalendar) {
-          tmp.festival = monthFestivals[i][j].replace("F", "");
+          dateInfos[i][j].festival = monthFestivals[i][j].replace("F", "");
         } else {
-          tmp.festival = monthFestivals[i][j];
+          dateInfos[i][j].festival = monthFestivals[i][j];
         }
-        //if (!TextUtils.isEmpty(tmp.day) && strHoliday.contains(tmp.day)) {
-        //  tmp.isHoliday = true;
-        //}
-        if (!TextUtils.isEmpty(tmp.day)) {
-          tmp.isToday = mCalendarUtils.isToday(year, month, Integer.valueOf(tmp.day));
+        if (!TextUtils.isEmpty(dateInfos[i][j].day)) {
+          dateInfos[i][j].isToday =
+              mCalendarUtils.isToday(year, month, Integer.valueOf(dateInfos[i][j].day));
         }
-        if (strWeekend.contains(tmp.day)) tmp.isWeekend = true;
+
+        if (strWeekend.contains(dateInfos[i][j].day)) {
+          dateInfos[i][j].isWeekend = true;
+        }
         if (mCalendarUtils instanceof DPCNCalendar) {
-          if (!TextUtils.isEmpty(tmp.day)) {
-            tmp.isSolarTerms = ((DPCNCalendar) mCalendarUtils).isSolarTerm(year, month,
-                Integer.valueOf(tmp.day));
+          if (!TextUtils.isEmpty(dateInfos[i][j].day)) {
+            dateInfos[i][j].isSolarTerms = ((DPCNCalendar) mCalendarUtils).isSolarTerm(year, month,
+                Integer.valueOf(dateInfos[i][j].day));
           }
           if (!TextUtils.isEmpty(monthFestivals[i][j]) && monthFestivals[i][j].endsWith("F")) {
-            tmp.isFestival = true;
+            dateInfos[i][j].isFestival = true;
           }
-          //if (!TextUtils.isEmpty(tmp.day)) {
-          //  tmp.isDayOff = ((DPCNCalendar) mCalendarUtils).isDeferred(year, month,
-          //      Integer.valueOf(tmp.day));
-          //}
         } else {
-          tmp.isFestival = !TextUtils.isEmpty(monthFestivals[i][j]);
+          dateInfos[i][j].isFestival = !TextUtils.isEmpty(monthFestivals[i][j]);
         }
-        dateInfos[i][j] = tmp;
       }
     }
     return dateInfos;
