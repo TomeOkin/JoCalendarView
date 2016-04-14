@@ -161,90 +161,101 @@ public class BaseCalendarView extends View implements ValueAnimator.AnimatorUpda
     for (int j = 0; j < mShowWeeks; j++) {
       top = j * mCellSize;
       centerY = top + mCellSize / 2.0f;
-      for (int i = 0; i < DEFAULT_DAYS_IN_WEEK; i++) {
-        left = i * mCellSize;
-        centerX = left + mCellSize / 2.0f;
-        isSelected =
-            mSelectedYear == year && mSelectedMonth == month && i == mSelectedX && j == mSelectedY;
-        date = dateInfos[j][i];
 
-        if (isSelected) {
-          drawClickableBg(canvas, centerX, centerY, date);
-
-          mTextPaint.setColor(DayConfig.DAY_SELECTED_TEXT_COLOR);
-          mTextPaint.setTextSize(mTextSize + 1);
-        } else if (date.isWeekend) {
-          mTextPaint.setColor(DayConfig.DAY_WEEKEND_TEXT_COLOR);
-          mTextPaint.setTextSize(mTextSize);
-        } else {
-          mTextPaint.setColor(DayConfig.DAY_NORMAL_TEXT_COLOR);
-          mTextPaint.setTextSize(mTextSize);
-        }
-
-        if (date.isToday) {
-          mTodayPaint.setColor(DayConfig.DAY_TODAY_BACKGROUND_COLOR);
-          canvas.drawCircle(centerX, centerY, mDayBgRectSmall * mDayCircleMaxRadio / 2.0f,
-              mTodayPaint);
-
-          mTextPaint.setTextSize(mTextSize + 1);
-        }
-
-        // 日期
-        float w = mTextPaint.measureText(date.day);
-        offsetX = (mCellSize - w) / 2.0f;
-        canvas.drawText(date.day, left + offsetX,
-            centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2.0f, mTextPaint);
-
-        // 装饰物相对中心的偏移
-        float centerOffset = mDayBgRectSmall / 2.0f;
-        if (isSelected || date.isToday) {
-          centerOffset *= mDayCircleMaxRadio;
-        }
-
-        // 右侧的 '休' 和 '班'
-        if (mOnDeferredHolidaysDraw != null && !TextUtils.isEmpty(date.day)) {
-          int deferredHoliday =
-              mOnDeferredHolidaysDraw.isDeferredHoliday(year, month, Integer.parseInt(date.day));
-          mTextPaint.setTextSize(mDecorateTextSize);
-          if (deferredHoliday == OnDeferredHolidaysDraw.HOLIDAY) {
-            mTextPaint.setColor(DayConfig.DAY_HOLIDAY_COLOR);
-            canvas.drawText("休", centerX + centerOffset, centerY, mTextPaint);
-          } else if (deferredHoliday == OnDeferredHolidaysDraw.DEFERRED) {
-            mTextPaint.setColor(DayConfig.DAY_DEFERRED_COLOR);
-            canvas.drawText("班", centerX + centerOffset, centerY, mTextPaint);
-          }
-        }
-
-        // 底部农历和节日
-        centerOffset += 14;
-        if (date.isWeekend) {
-          mTextPaint.setColor(DayConfig.DAY_WEEKEND_TEXT_COLOR);
-        } else {
-          mTextPaint.setColor(DayConfig.DAY_FESTIVAL_TEXT_COLOR);
-        }
-        mTextPaint.setTextSize(mDecorateTextSize);
-        String festival = (String) TextUtils.ellipsize(date.festival, mTextPaint, mCellSize,
-            TextUtils.TruncateAt.END);
-        w = mTextPaint.measureText(festival);
-        offsetX = (mCellSize - w) / 2.0f;
-        canvas.drawText(festival, left + offsetX,
-            centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2.0f + centerOffset,
-            mTextPaint);
-
-        // 上方 Notice
-        centerOffset -= 4;
-        if (mOnDateNoticeDraw != null && !TextUtils.isEmpty(date.day)) {
-          if (mOnDateNoticeDraw.hasNoticeOnDate(year, month, Integer.parseInt(date.day))) {
-            drawDateNotice(canvas, centerX, centerY - centerOffset, date);
-          }
-        }
-      }
+      drawWeekView(canvas, centerY, j, year, month, dateInfos[j]);
 
       mTextPaint.setColor(DayConfig.WEEK_DIVIDE_LINE);
       canvas.drawLine(0, top + mCellSize, getWidth(), top + mCellSize, mTextPaint);
     }
 
     canvas.restore();
+  }
+
+  private void drawWeekView(Canvas canvas, float centerY, int j, int year, int month,
+      DateInfo[] dateInfos) {
+    float left;
+    float offsetX;
+    float centerX;
+    boolean isSelected;
+    DateInfo date;
+
+    for (int i = 0; i < DEFAULT_DAYS_IN_WEEK; i++) {
+      left = i * mCellSize;
+      centerX = left + mCellSize / 2.0f;
+      isSelected =
+          mSelectedYear == year && mSelectedMonth == month && i == mSelectedX && j == mSelectedY;
+      date = dateInfos[i];
+
+      if (isSelected) {
+        drawClickableBg(canvas, centerX, centerY, date);
+
+        mTextPaint.setColor(DayConfig.DAY_SELECTED_TEXT_COLOR);
+        mTextPaint.setTextSize(mTextSize + 1);
+      } else if (date.isWeekend) {
+        mTextPaint.setColor(DayConfig.DAY_WEEKEND_TEXT_COLOR);
+        mTextPaint.setTextSize(mTextSize);
+      } else {
+        mTextPaint.setColor(DayConfig.DAY_NORMAL_TEXT_COLOR);
+        mTextPaint.setTextSize(mTextSize);
+      }
+
+      if (date.isToday) {
+        mTodayPaint.setColor(DayConfig.DAY_TODAY_BACKGROUND_COLOR);
+        canvas.drawCircle(centerX, centerY, mDayBgRectSmall * mDayCircleMaxRadio / 2.0f,
+            mTodayPaint);
+
+        mTextPaint.setTextSize(mTextSize + 1);
+      }
+
+      // 日期
+      float w = mTextPaint.measureText(date.day);
+      offsetX = (mCellSize - w) / 2.0f;
+      canvas.drawText(date.day, left + offsetX,
+          centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2.0f, mTextPaint);
+
+      // 装饰物相对中心的偏移
+      float centerOffset = mDayBgRectSmall / 2.0f;
+      if (isSelected || date.isToday) {
+        centerOffset *= mDayCircleMaxRadio;
+      }
+
+      // 右侧的 '休' 和 '班'
+      if (mOnDeferredHolidaysDraw != null && !TextUtils.isEmpty(date.day)) {
+        int deferredHoliday =
+            mOnDeferredHolidaysDraw.isDeferredHoliday(year, month, Integer.parseInt(date.day));
+        mTextPaint.setTextSize(mDecorateTextSize);
+        if (deferredHoliday == OnDeferredHolidaysDraw.HOLIDAY) {
+          mTextPaint.setColor(DayConfig.DAY_HOLIDAY_COLOR);
+          canvas.drawText("休", centerX + centerOffset, centerY, mTextPaint);
+        } else if (deferredHoliday == OnDeferredHolidaysDraw.DEFERRED) {
+          mTextPaint.setColor(DayConfig.DAY_DEFERRED_COLOR);
+          canvas.drawText("班", centerX + centerOffset, centerY, mTextPaint);
+        }
+      }
+
+      // 底部农历和节日
+      centerOffset += 14;
+      if (date.isWeekend) {
+        mTextPaint.setColor(DayConfig.DAY_WEEKEND_TEXT_COLOR);
+      } else {
+        mTextPaint.setColor(DayConfig.DAY_FESTIVAL_TEXT_COLOR);
+      }
+      mTextPaint.setTextSize(mDecorateTextSize);
+      String festival = (String) TextUtils.ellipsize(date.festival, mTextPaint, mCellSize,
+          TextUtils.TruncateAt.END);
+      w = mTextPaint.measureText(festival);
+      offsetX = (mCellSize - w) / 2.0f;
+      canvas.drawText(festival, left + offsetX,
+          centerY - (mTextPaint.descent() + mTextPaint.ascent()) / 2.0f + centerOffset, mTextPaint);
+
+      // 上方 Notice
+      centerOffset -= 4;
+      if (mOnDateNoticeDraw != null && !TextUtils.isEmpty(date.day)) {
+        if (mOnDateNoticeDraw.hasNoticeOnDate(year, month, Integer.parseInt(date.day))) {
+          drawDateNotice(canvas, centerX, centerY - centerOffset, date);
+        }
+      }
+    }
   }
 
   private void drawClickableBg(Canvas canvas, float centerX, float centerY, DateInfo date) {
